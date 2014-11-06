@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+		<menuitem id="menu_root" name="Open Academy"/>
+		<menuitem id="menu" name="Open Academy" parent="menu_root"/>
+		
+		<!--Cursos-->
+		<record id="view_course_form" model="ir.ui.view">
+            <field name="name">openacademy.course.form</field>
+            <field name="model">openacademy.course</field>
+            <field name="arch" type="xml">
+                <form string="Courses">
+                    <group> 
+                    	<field name="name"></field>
+                    	<field name="responsible_id"></field>
+                    </group>
+                    <notebook> 
+                    	<page string="Description"> 
+                    		<field name="description"></field>
+                    	</page>
+                    	<page string="Sessions"> 
+                    		<field name="session_ids"></field>
+                    	</page>
+                    </notebook>
+                </form>
+            </field>
+        </record>
+        
+        <record id="view_course_tree" model="ir.ui.view">
+            <field name="name">openacademy.course.tree</field>
+            <field name="model">openacademy.course</field>
+            <field name="arch" type="xml">
+                <tree string="Courses">
+                    <field name="name"/>
+                    <field name="description"/>
+                    <field name="responsible_id"/>
+                </tree>
+            </field>
+        </record>
+       
+        <record id="action_course" model="ir.actions.act_window">
+            <field name="name">Course</field>
+            <field name="res_model">openacademy.course</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+       
+        <menuitem id="menu_course" name="Courses" parent="menu" action="action_course"/>
+		
+		<!--Sesiones-->
+		<record id="view_session_form" model="ir.ui.view">
+            <field name="name">openacademy.session.form</field>
+            <field name="model">openacademy.session</field>
+            <field name="arch" type="xml">
+                <form string="Sessions">
+                    <group>
+                    	<group> 
+                    		<field name="name"></field>
+                    		<!--Para el instructor decimos que este por default-->
+                    		<field name="instructor_id" context="{'default_is_instructor':True}"></field>
+                    		<field name="duration"></field>
+                    		<field name="course_id"></field>
+                    	</group>
+                    	<group> 
+                    		<field name="seats"></field>
+                    		<field name="start_date"></field>
+                    		<field name="end_date"></field>
+                    	</group>
+                    </group>
+                    <notebook> 
+                    	<page string="Attendees"> 
+                    		<field name="attendee_ids">
+                    			<tree string="Attendees" editable="bottom">
+                    				<field name="name"></field>
+                    				<field name="partner_id"></field>
+                    			</tree>
+                    		</field>
+                    	</page>
+                    	<page string="Other Info">
+                    		<field name="attendee_count"></field>
+                    	</page>
+                    </notebook>
+                </form>
+            </field>
+        </record>
+        
+        <record id="view_session_tree" model="ir.ui.view">
+            <field name="name">openacademy.session.tree</field>
+            <field name="model">openacademy.session</field>
+            <field name="arch" type="xml">
+                <tree string="Strings">
+                    <field name="name"/>
+                    <field name="course_id"/>
+                    <field name="duration"/>
+                    <field name="start_date"/>
+                    <field name="seats"/>
+                </tree>
+            </field>
+        </record>
+	
+        <record id="action_session" model="ir.actions.act_window">
+            <field name="name">Sessions</field>
+            <field name="res_model">openacademy.session</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        
+        <menuitem id="menu_sessions" name="Sessions" parent="menu" action="action_session"/>
+		
+		<!--Attendees-->
+        <record id="view_attendee_tree" model="ir.ui.view">
+            <field name="name">openacademy.attendee.tree</field>
+            <field name="model">openacademy.attendee</field>
+            <field name="arch" type="xml">
+                <tree string="Attendees" editable="bottom">
+                    <field name="name"/>
+                    <field name="session_id"/>
+                    <field name="partner_id"/>
+                </tree>
+            </field>
+        </record>
+        
+        <record id="action_attendee" model="ir.actions.act_window">
+            <field name="name">Attendee</field>
+            <field name="res_model">openacademy.attendee</field>
+            <field name="view_mode">tree</field>
+        </record>
+        
+        <menuitem id="menu_attendee" name="Attendees" parent="menu" action="action_attendee"/>
+		
+    </data>
+</openerp>
