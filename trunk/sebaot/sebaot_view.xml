@@ -1,0 +1,515 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+	<data>
+		<menuitem id="menu_root" name="Seguros" groups="group_user"/>
+		<menuitem id="menu_seguro" name="Seguros" parent="menu_root" sequence="10"/>
+		<menuitem id="menu_bienes" name="Bienes" parent="menu_root" sequence="20"/>
+		<menuitem id="menu_mantenimiento" name="Mantenimiento" parent="menu_root" sequence="30"/>
+
+		<!--Form de la poliza-->
+		<record id="view_poliza_form" model="ir.ui.view">
+			<field name="name">sebaot.poliza.form</field>
+			<field name="model">sebaot.poliza</field>
+			<field name="arch" type="xml">
+				<form string="Poliza">
+					<header>
+						<field name="state" widget="statusbar" clickable="True"></field>
+					</header>
+					<sheet>
+						<h2>
+							<label class="oe_inline" for="name" string="Poliza:" />
+							<field class="oe_inline" name="name"/>
+						</h2>
+						<h3>
+							<label class="oe_inline" for="asegurado_id" string="Asegurado:" />
+							<field class="oe_inline" name="asegurado_id"/>
+						</h3>
+						<group>
+							<group>
+								<field name="emision_fecha"/>
+								<field name="vigencia_inicio"/>
+								<field name="vigencia_fin"/>
+							</group>
+							<group>
+								<field name="sucursal_carga"/>
+								<field name="vendedor_id"/>
+								<field name="cobrador_id"/>
+								<field name="moneda"/>
+							</group>
+						</group>
+						<notebook>
+							<page string="Montos">
+								<group>
+									<group>
+										<separator string="Nuestra Participacion" colspan="2"/>
+										<field name="plan"/>
+										<field name="capital" />
+										<field name="prima_tecnica" />
+										<field name="servicio" />
+										<field name="prima" />
+										<field name="rpf" />
+										<field name="sub_total" />
+										<field name="iva" />
+										<field name="premio" />
+									</group>
+									<group>
+										<separator string="Datos de pagos" colspan="2"/>
+										<field name="pagado_monto"/>
+										<field name="saldo_actual"/>
+										<separator string="Franquicia" colspan="2"/>
+										<field name="franquicia"/>
+										<separator string="Datos de Factura" colspan="2"/>
+										<field name="factura_numero"/>
+										<field name="factura_fecha"/>
+										<field name="factura_monto"/>
+									</group>
+								</group>
+							</page>
+							<page string="Estado de Cuenta">
+								<field name="cuota_ids"/>
+							</page>
+							<page string="Articulo">
+								<field name="articulo_ids" />
+							</page>
+							<page string="Historial">
+								<field name="child_ids" />
+							</page>
+							<page string="Servicios de Poliza">
+								<field name="servicio_ids"/>
+							</page>
+							<page string="Otros">
+								<group>
+									<group string="Poliza">
+										<field name="seccion_id"/>
+										<field name="poliza"/>
+										<field name="endoso"/>
+									</group>
+									<group string="Registro">
+										<field name="operador"/>
+										<field name="autorizado"/>
+										<field name="autorizado_fecha"/>
+									</group>
+								</group>
+							</page>
+						</notebook>
+					</sheet>
+					<div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>    
+				</form>
+			</field>
+		</record>
+
+		<!--Esto es para la vista tipo lista Poliza-->
+		<record id="view_poliza_tree" model="ir.ui.view">
+			<field name="name">sebaot.poliza.tree</field>
+			<field name="model">sebaot.poliza</field>
+			<field name="arch" type="xml">
+				<tree string="Polizas">
+					<field name="seccion_id"/>
+					<field name="asegurado_id"/>
+					<field name="name"/>
+					<field name="vigencia_inicio"/>
+					<field name="vigencia_fin"/>
+				</tree>
+			</field>
+		</record>
+		
+		<!--Esto es para la vista tipo Grafico Polizas -->
+		<record id="view_poliza_graph" model="ir.ui.view">
+            <field name="name">sebaot.poliza.graph</field>
+            <field name="model">sebaot.poliza</field>
+            <field name="arch" type="xml">
+                <graph string="Grafico Poliza" type="bar" >
+                    <field name="plan" type="row"/>
+                    <field name="prima_tecnica" operator="+" type="measure"/>
+                </graph>
+            </field>
+        </record>
+		<!--Ventana Tree de Estado de cuenta Poliza-->
+		<!--Esto es para la vista tipo lista-->
+		<record id="view_cuota__tree" model="ir.ui.view">
+			<field name="name">sebaot.cuota.tree</field>
+			<field name="model">sebaot.cuota</field>
+			<field name="arch" type="xml">
+				<tree string="Cuotas" editable="top">
+					<field name="poliza_id"/>
+					<field name="cuota_numero"/>
+					<field name="recibo_serie"/>
+					<field name="recibo_numero"/>
+					<field name="vencimiento"/>
+					<field name="monto"/>
+					<field name="parcial"/>
+					<field name="tipo"/>
+					<field name="pagado"/>
+					<field name="pagado_fecha"/>
+					<field name="pagado_en"/>
+					<field name="saldo"/>
+					<field name="cobrador_id"/>
+				</tree>
+			</field>
+		</record>
+		<!--Ventana Tree de Servicios de Poliza-->
+		<!--Esto es para la vista tipo lista servicio-->
+		<record id="view_servicio_tree" model="ir.ui.view">
+			<field name="name">sebaot.servicio.tree</field>
+			<field name="model">sebaot.servicio</field>
+			<field name="arch" type="xml">
+				<tree string="Servicios" editable="top">
+					<field name="poliza_id"/>
+					<field name="name"/>
+					<field name="costo"/>
+					<field name="moneda"/>
+					<field name="prestador_id"/>
+				</tree>
+			</field>
+		</record>
+		<!--Aqui activamos los diferentes tipos de vistas-->
+		<!--SubMenu Polizas-->
+		<record id="action_poliza" model="ir.actions.act_window">
+			<field name="name">Poliza</field>
+			<field name="res_model">sebaot.poliza</field>
+			<field name="view_mode">tree,form,graph</field>
+		</record>
+		<!--Show SubMenu Polizas-->
+		<menuitem id="menu_poliza" name="Poliza" parent="menu_seguro" action="action_poliza"/>
+
+		<!--Vista Form del siniestro-->
+		<record id="view_siniestro_form" model="ir.ui.view">
+			<field name="name">sebaot.siniestro.form</field>
+			<field name="model">sebaot.siniestro</field>
+			<field name="arch" type="xml">
+				<form string="Siniestro">
+					<header>
+						<field name="state" widget="statusbar" clickable="True"></field>
+					</header>
+					<sheet>
+						<h2>
+							<label class="oe_inline" for="articulo_id" string="Articulo:" />
+							<field class="oe_inline" name="articulo_id"/>
+						</h2>
+						<group>
+							<group>
+								<field name="anho"/>
+								<field name="numero"/>
+								<field name="parcial"/>
+								<field name="denuncia_fecha"/>
+								<field name="siniestro_fecha"/>
+
+                                                                <field name="asegurado_id"/>
+							</group>
+							<group>
+								<field name="declarante"/>
+								<field name="declarante_cedula"/>
+								<field name="operador"/>
+								<field name="finiquitado_fecha" />
+								<field name="poliza_id"/>
+								<field name="seccion_id"/>
+								<field name="agente_id"/>
+							</group>
+						</group>
+						<notebook>
+							<page string="Detalles">
+								<group>
+									<group>
+										<separator string="Como ocurrio" colspan="2"/>
+										<field name="causa"/>
+										<field name="como_ocurrio"/>
+										<field name="danhos"/>
+									</group>
+									<group>
+										<separator string="Montos" colspan="2"/>
+										<field name="total_pendiente"/>
+										<field name="total_facturado"/>
+										<field name="estimado_total"/>
+										<field name="estimado_cia"/>
+									</group>
+								</group>
+							</page>
+							<page string="Cobertura">
+								<field name="cobertura_ids"/>
+							</page>
+							<page string="Pagos">
+								<field name="pago_ids"/>
+							</page>
+							<page string="Gastos">
+								<field name="gasto_ids"/>
+							</page>
+						</notebook>
+					</sheet>
+					<div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>    
+				</form>
+			</field>
+		</record>
+		<!--Esto es para la vista tipo lista siniestros-->
+		<record id="view_siniestro_tree" model="ir.ui.view">
+			<field name="name">sebaot.siniestro.tree</field>
+			<field name="model">sebaot.siniestro</field>
+			<field name="arch" type="xml">
+				<tree string="Siniestro">
+					<field name="anho"/>
+					<field name="numero"/>
+					<field name="parcial"/>
+					<field name="articulo_id"/>
+					<field name="denuncia_fecha"/>
+					<field name="siniestro_fecha"/>
+					<field name="total_facturado"/>
+				</tree>
+			</field>
+		</record>
+		<!--Esto es para la vista tipo Grafico Siniestros -->
+		<record id="view_siniestro_graph" model="ir.ui.view">
+            <field name="name">sebaot.siniestro.graph</field>
+            <field name="model">sebaot.siniestro</field>
+            <field name="arch" type="xml">
+                <graph string="Grafico Siniestro" type="bar" >
+                    <field name="agente_id" type="row"/>
+                    <field name="seccion_id" type="col"/>
+                    <field name="total_facturado" operator="+" type="measure"/>
+                </graph>
+            </field>
+        </record>
+		<!--Aqui activamos los diferentes tipos de vistas-->
+		<!--SubMenu Siniestros-->
+		<record id="action_siniestro" model="ir.actions.act_window">
+			<field name="name">Siniestro</field>
+			<field name="res_model">sebaot.siniestro</field>
+			<field name="view_mode">tree,form,graph</field>
+		</record>
+		<!--Show SubMenu Siniestro-->
+		<menuitem id="menu_siniestro" name="Siniestro" parent="menu_seguro" action="action_siniestro"/>
+
+		<!--Vista Form del articulo-->
+		<record id="view_articulo_form" model="ir.ui.view">
+			<field name="name">sebaot.articulo.form</field>
+			<field name="model">sebaot.articulo</field>
+			<field name="arch" type="xml">
+				<form string="Articulo">
+					<sheet>
+						<h2>
+							<label class="oe_inline" for="name" string="Articulo:" />
+							<field class="oe_inline" name="name"/>
+						</h2>
+						<group>
+							<group>
+								<field name="poliza_id"/>
+								<field name="tipo"/>
+								<field name="automovil_id"/>
+								<field name="suma_asegurada"/>
+								<field name="franquicia"/>
+							</group>
+						</group>
+						<notebook>
+							<page string="Coberturas">
+								<field name="cobertura_ids"/>
+							</page>
+							<page string="Clausulas">
+								<field name="clausula_ids"/>
+							</page>
+							<page string="Siniestros">
+								<field name="siniestro_ids"/>
+							</page>
+						</notebook>
+					</sheet>
+				</form>
+			</field>
+		</record>
+		<!--Esto es para la vista tipo lista articulo-->
+		<record id="view_articulo_tree" model="ir.ui.view">
+			<field name="name">sebaot.articulo.tree</field>
+			<field name="model">sebaot.articulo</field>
+			<field name="arch" type="xml">
+				<tree string="Articulo">
+					<field name="poliza_id"/>
+					<field name="asegurado_id"/>
+					<field name="tipo"/>
+					<field name="suma_asegurada"/>
+					<field name="franquicia"/>
+					<field name="siniestro_total_facturado"/>
+				</tree>
+			</field>
+		</record>
+		<!--Esto es para la vista tipo Grafico Articulo -->
+		<record id="view_articulo_graph" model="ir.ui.view">
+            <field name="name">sebaot.articulo.graph</field>
+            <field name="model">sebaot.articulo</field>
+            <field name="arch" type="xml">
+                <graph string="Grafico Articulo" type="bar" >
+                    <field name="seccion_id" type="row"/>
+                    <field name="suma_asegurada" operator="+" type="measure"/>
+                </graph>
+            </field>
+        </record>
+		<!--Aqui activamos los diferentes tipos de vistas-->
+		<!--SubMenu Articulo-->
+		<record id="action_articulo" model="ir.actions.act_window">
+			<field name="name">Articulo</field>
+			<field name="res_model">sebaot.articulo</field>
+			<field name="view_mode">tree,form,graph</field>
+		</record>
+		<!--Show SubMenu Articulo-->
+		<menuitem id="menu_articulo" name="Articulo" parent="menu_seguro" action="action_articulo"/>
+
+		<!--Form del automovil-->
+		<record id="view_automovil_form" model="ir.ui.view">
+			<field name="name">sebaot.automovil.form</field>
+			<field name="model">sebaot.automovil</field>
+			<field name="arch" type="xml">
+				<form string="Automovil">
+					<sheet>
+						<h1>
+							<label class="oe_inline" for="name" string="Automovil:" />
+							<field class="oe_inline" name="name"/>
+						</h1>
+						<group string="Datos Basicos">
+							<group>
+								<field name="marca_id"/>
+								<field name="country_id"/>
+								<field name="motor"/>
+								<field name="chasis"/>
+							</group>
+							<group>
+								<field name="anho"/>
+								<field name="via"/>
+							</group>
+						</group>
+						<notebook>
+							<page string="Detalles">
+								<group string="Detalles">
+									<group>
+										<field name="chapa"/>
+										<field name="state_id"/>
+										<field name="coche"/>
+										<field name="pasajeros"/>
+										<field name="tonelaje"/>
+									</group>
+									<group>
+										<field name="color"/>
+										<field name="uso"/>
+										<field name="gps"/>
+										<field name="siniestro_total_facturado"/>
+									</group>
+								</group>
+							</page>
+							<page string="Articulos">
+								<field name="articulo_ids"/>
+							</page>
+						</notebook>
+					</sheet>
+				</form>
+			</field>
+		</record>
+		<!--Esto es para la vista tipo lista automovill-->
+		<record id="view_automovil_tree" model="ir.ui.view">
+			<field name="name">sebaot.automovil.tree</field>
+			<field name="model">sebaot.automovil</field>
+			<field name="arch" type="xml">
+				<tree string="Automovil">
+					<field name="name"/>
+					<field name="anho"/>
+					<field name="color"/>
+					<field name="siniestro_total_facturado"/>
+				</tree>
+			</field>
+		</record>
+		<!--Esto es para la vista tipo Grafico Automovil -->
+		<record id="view_automovil_graph" model="ir.ui.view">
+            <field name="name">sebaot.automovil.graph</field>
+            <field name="model">sebaot.automovil</field>
+            <field name="arch" type="xml">
+                <graph string="Grafico Automovil" type="bar" >
+                    <field name="via" type="row"/>
+                    <field name="color" type="col"/>
+                    <field name="siniestro_total_facturado" 
+                    	operator="+" type="measure"/>
+                </graph>
+            </field>
+        </record>
+		<!--Aqui activamos los diferentes tipos de vistas-->
+		<!--SubMenu Automovil-->
+		<record id="action_automovil" model="ir.actions.act_window">
+			<field name="name">Automovil</field>
+			<field name="res_model">sebaot.automovil</field>
+			<field name="view_mode">tree,form,graph</field>
+		</record>
+		<!--Show SubMenu Automovil-->
+		<menuitem id="menu_automovil" name="Automovil" parent="menu_bienes" action="action_automovil"/>
+
+		<!--Aqui activamos los diferentes tipos de vistas-->
+		<!--SubMenu Mantenimiento-->
+		<record id="action_seccion" model="ir.actions.act_window">
+			<field name="name">Seccion</field>
+			<field name="res_model">sebaot.seccion</field>
+			<field name="view_mode">tree,form</field>
+		</record>
+		<!--Show SubMenu Mantenimiento-->
+		<menuitem id="menu_seccion" name="Seccion" parent="menu_mantenimiento" action="action_seccion"/>
+		
+		<!--Ventana Tree de Siniestro Cobertura-->
+		<!--Esto es para la vista tipo lista articulo-->
+		<record id="view_siniestro_cobertura_tree" model="ir.ui.view">
+			<field name="name">sebaot.siniestro.cobertura.tree</field>
+			<field name="model">sebaot.siniestro.cobertura</field>
+			<field name="arch" type="xml">
+				<tree string="Cobertura de Siniestro" editable="top">
+					<field name="siniestro_id"/>
+					<field name="cobertura_id"/>
+					<field name="suma_asegurada"/>
+					<field name="estimado"/>
+					<field name="saldo"/>
+				</tree>
+			</field>
+		</record>
+		
+		<!--Ventana Tree de Siniestro Gasto-->
+		<!--Esto es para la vista tipo lista gasto-->
+		<record id="view_siniestro_gasto_tree" model="ir.ui.view">
+			<field name="name">sebaot.siniestro.gasto.tree</field>
+			<field name="model">sebaot.siniestro.gasto</field>
+			<field name="arch" type="xml">
+				<tree string="Gasto de Siniestro" editable="top">
+					<field name="siniestro_id"/>
+					<field name="orden"/>
+					<field name="orden_fecha"/>
+					<field name="monto"/>
+					<field name="coaseguro"/>
+					<field name="nuestra_parte"/>
+					<field name="moneda"/>
+					<field name="autorizado"/>
+					<field name="autorizado_fecha"/>
+					<field name="proveedor_id"/>
+					<field name="factura_serie"/>
+					<field name="factura_tipo"/>
+					<field name="factura_numero"/>
+				</tree>
+			</field>
+		</record>
+		<!--Ventana Tree de Siniestro Pago-->
+		<!--Esto es para la vista tipo lista pago-->
+		<record id="view_siniestro_pago_tree" model="ir.ui.view">
+			<field name="name">sebaot.siniestro.pago.tree</field>
+			<field name="model">sebaot.siniestro.pago</field>
+			<field name="arch" type="xml">
+				<tree string="Pago de Siniestro" editable="top">
+					<field name="siniestro_id"/>
+					<field name="orden"/>
+					<field name="orden_fecha"/>
+					<field name="monto"/>
+					<field name="coaseguro"/>
+					<field name="nuestra_parte"/>
+					<field name="moneda"/>
+					<field name="autorizado"/>
+					<field name="autorizado_fecha"/>
+					<field name="proveedor_id"/>
+					<field name="factura_serie"/>
+					<field name="factura_tipo"/>
+					<field name="factura_numero"/>
+				</tree>
+			</field>
+		</record>
+	</data>
+</openerp>
